@@ -1,5 +1,5 @@
-from django.shortcuts import render
 from rest_framework import viewsets
+from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 
 from borrowing.models import Borrowing
@@ -20,3 +20,12 @@ class BorrowingViewSet(viewsets.ModelViewSet):
         if user.is_staff:
             return Borrowing.objects.all()
         return Borrowing.objects.filter(user_id=user.id)
+
+    def perform_create(self, serializer):
+        book = serializer.validated_data["book"]
+        if book.inventory < 1:
+            raise ValidationError({"book": f"{book.title} is out of stock"})
+        book.inventory -= 1
+        book.save()
+
+        serializer.save(user=self.request.user)

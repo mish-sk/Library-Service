@@ -25,4 +25,4 @@ class BorrowingCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Borrowing
-        fields = ("id", "user", "book", "expected_return_date")
+        fields = ("id", "book", "expected_return_date")
