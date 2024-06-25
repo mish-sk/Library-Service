@@ -16,3 +16,7 @@ class Borrowing(models.Model):
 
     def __str__(self):
         return f"{self.user} borrowed {self.book}: {self.borrow_date}"
+
+    @property
+    def is_active(self):
+        return self.actual_return_date is None
