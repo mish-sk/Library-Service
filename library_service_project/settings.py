@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "rest_framework_simplejwt",
+    "drf_spectacular",
     "books",
     "user",
     "borrowing",
@@ -133,7 +134,8 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
-    )
+    ),
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
 
 SIMPLE_JWT = {
@@ -142,4 +144,11 @@ SIMPLE_JWT = {
     "ROTATE_REFRESH_TOKENS": False,
     "AUTH_HEADER_TYPES": ("Authorize",),
     "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
+}
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Library service",
+    "DESCRIPTION": "Project for managing library service",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
 }
