@@ -1,6 +1,10 @@
-from rest_framework import viewsets
+from datetime import date
+
+from rest_framework import viewsets, status
+from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
 from borrowing.models import Borrowing
 from borrowing.serializers import BorrowingSerializer, BorrowingCreateSerializer
@@ -43,3 +47,24 @@ class BorrowingViewSet(viewsets.ModelViewSet):
         book.save()
 
         serializer.save(user=self.request.user)
+
+    @action(detail=True, methods=["post"], url_path="return")
+    def return_borrowing(self, request, pk=None):
+        borrowing = self.get_object()
+
+        if not borrowing.is_active:
+            return Response(
+                {"error": "The book has already been returned"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        book = borrowing.book
+        book.inventory += 1
+        book.save()
+
+        borrowing.actual_return_date = date.today()
+        borrowing.save()
+
+        return Response(
+            {"message": "Book returned successfully"}, status=status.HTTP_200_OK
+        )
