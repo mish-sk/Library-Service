@@ -1,3 +1,4 @@
+from datetime import date
 from rest_framework import serializers
 
 from books.serializers import BookSerializer
@@ -26,4 +27,15 @@ class BorrowingCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Borrowing
-        fields = ("id", "book", "expected_return_date")
+        fields = [
+            "id",
+            "book",
+            "expected_return_date",
+        ]
+
+    def validate_expected_return_date(self, expected_return_date):
+        if expected_return_date < date.today():
+            raise serializers.ValidationError(
+                "Expected return date cannot be earlier than borrowing date."
+            )
+        return expected_return_date
