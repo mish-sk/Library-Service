@@ -1,3 +1,5 @@
+from datetime import date
+
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -34,5 +36,7 @@ class Borrowing(models.Model):
             )
 
     def save(self, *args, **kwargs):
+        if not self.borrow_date:
+            self.borrow_date = date.today()
         self.clean()
         super().save(*args, **kwargs)

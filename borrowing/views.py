@@ -77,7 +77,7 @@ class BorrowingViewSet(viewsets.ModelViewSet):
         responses={200: "Book returned successfully."},
         description="Return a borrowed book",
     )
-    @action(detail=True, methods=["post"], url_path="return")
+    @action(detail=True, methods=["post"], url_path="return", url_name="return")
     def return_borrowing(self, request, pk=None):
         borrowing = self.get_object()
 
