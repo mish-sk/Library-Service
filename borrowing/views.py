@@ -1,5 +1,6 @@
 from datetime import date
 
+from drf_spectacular.utils import extend_schema_view, extend_schema, OpenApiParameter
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
@@ -10,6 +11,30 @@ from borrowing.models import Borrowing
 from borrowing.serializers import BorrowingSerializer, BorrowingCreateSerializer
 
 
+@extend_schema_view(
+    list=extend_schema(
+        parameters=[
+            OpenApiParameter(
+                "is_active",
+                type={"type": "string"},
+                description="Filter by active status (ex. ?is_active=true/false)",
+                required=False,
+            ),
+            OpenApiParameter(
+                "user_id",
+                type={"type": "string"},
+                description="Filter by user id (ex. ?user_id=1)",
+                required=False,
+            ),
+        ],
+        description="Retrieve a list of all borrowings",
+    ),
+    retrieve=extend_schema(description="Retrieve a borrowing by id"),
+    create=extend_schema(description="Create a new borrowing"),
+    update=extend_schema(description="Update an existing borrowing"),
+    partial_update=extend_schema(description="Partially update an existing borrowing"),
+    destroy=extend_schema(description="Delete a borrowing"),
+)
 class BorrowingViewSet(viewsets.ModelViewSet):
     queryset = Borrowing.objects.all()
     permission_classes = (IsAuthenticated,)
@@ -26,7 +51,7 @@ class BorrowingViewSet(viewsets.ModelViewSet):
         if user.is_staff:
             user_id = self.request.query_params.get("user_id")
             if user_id:
-                queryset = queryset.filter(user=user)
+                queryset = queryset.filter(user_id=user_id)
         else:
             queryset = queryset.filter(user=user)
 
@@ -48,7 +73,11 @@ class BorrowingViewSet(viewsets.ModelViewSet):
 
         serializer.save(user=self.request.user)
 
-    @action(detail=True, methods=["post"], url_path="return")
+    @extend_schema(
+        responses={200: "Book returned successfully."},
+        description="Return a borrowed book",
+    )
+    @action(detail=True, methods=["post"], url_path="return", url_name="return")
     def return_borrowing(self, request, pk=None):
         borrowing = self.get_object()
 
